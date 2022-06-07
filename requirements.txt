@@ -1,0 +1,8 @@
+Version: 1.0
+Description: A tool to format the JS, JSX, TS or TSX files before the pull request intiates.
+Abilities: 
+    1. Run a git status in a git directory and get the changed files
+    2. Run git diff on each of these files
+    3. Get the new changes added
+    4. Remove console logs in the newly added changes
+    5. Explore for hard coded values and replace them with the previous value
