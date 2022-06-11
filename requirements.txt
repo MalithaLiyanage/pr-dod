@@ -5,4 +5,4 @@ Abilities:
     2. Run git diff on each of these files
     3. Get the new changes added
     4. Remove console logs in the newly added changes
-    5. Explore for hard coded values and replace them with the previous value
+    5. Explore for hard coded values and replace them with the previous value by asking the user
