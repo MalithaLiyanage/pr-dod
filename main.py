@@ -1,26 +1,10 @@
 from operator import mod
 import subprocess
+import os
 import re
+            
 
-def analyzeDiffCode():
-    print('analyze')
-
-def removeAddedLogs():
-    for file in modifiedFiles:
-        lineNumber = 0
-        addedLogs= []
-        diffFileName = 'diff-'+ file.split('.')[0] + '.txt'
-        print(diffFileName)
-        f = open(f'diffs/{diffFileName}', 'r')
-        fileContent = f.readlines()
-        for line in fileContent:
-            lineNumber += 1
-            if line[0] == '+':
-                if 'console.log' in line[1:]:
-                    print(lineNumber)
-                    addedLogs.append(line[1:])
-
-if __name__ == '__main__':
+def find_changed_files():
     untrackedFiles = []
     newlyAddedFiles = []
     modifiedFiles = []
@@ -59,10 +43,6 @@ if __name__ == '__main__':
     isNoCommitsYet = 'No commits yet' in decodedResult or 'Changes not staged for commit' in decodedResult
 
     if isNoCommitsYet:
-        process = subprocess.Popen(['mkdir', 'diffs'],
-                        stdout=subprocess.PIPE, 
-                        stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
 
         splits = decodedResult.split('\n')
         for line in splits:
@@ -73,15 +53,26 @@ if __name__ == '__main__':
                     else:
                         if lineSplits[1].strip(' ') != '.gitignore':
                             modifiedFiles.append(lineSplits[1].strip(' '))
+        modifiedFiles = set(modifiedFiles)
         print(f'modified files: "{modifiedFiles}"')
         print(f'newly added files: "{newlyAddedFiles}"')
 
-        for modifiedFile in modifiedFiles:
-            outputFileOption = '--output=' + 'diffs/diff-' + modifiedFile.split('.')[0] + '.txt'
-            process = subprocess.Popen(['git', 'diff', outputFileOption, modifiedFile],
-                        stdout=subprocess.PIPE, 
-                        stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
-            if (stderr):
-                print(f'Error: "{stderr}"')
-        removeAddedLogs()
+if __name__ == '__main__':
+    x =subprocess.Popen(['git', 'diff', 'main.py'],  stdout=subprocess.PIPE, 
+                         stderr=subprocess.PIPE)
+    stdout, stderr = x.communicate()
+    if (stderr):
+        print(f'Error: "{stderr}"')
+    decodedDiffResult = stdout.decode('utf8') 
+
+    for line in decodedDiffResult.split('\n'):
+        if(len(line) > 2 and line[0] == '@' and line[1] == '@' and line[len(line) -1] == '@' and line[len(line) -2] == '@'):
+
+            formattedLine = line.split('@@')
+            formattedPlusSplits = formattedLine[1].split('+')
+            startingLine = formattedPlusSplits[1].split(',')[0]
+            noOfAddedLines = formattedPlusSplits[1].split(',')[1]
+            print(startingLine)
+            print(noOfAddedLines)
+    find_changed_files()
+
